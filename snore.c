@@ -40,7 +40,7 @@ int main(int argc, char ** argv)
         return fprintf(stderr, "Error: max is 999999999 (nine 9s)\n"), 3;
 
     if(argc == 3 && 0 != strcmp(argv[2], "--countdown"))
-        return fprintf(stderr, "Error: second argument is not '--countdown'\n", argv[0]), 4;
+        return fprintf(stderr, "Error: second argument is not '--countdown'\n"), 4;
 
     s = atoi(argv[1]);
 
@@ -53,6 +53,7 @@ int main(int argc, char ** argv)
         {
             /* move cursor to column 0, clearn line, print number */
             printf("\r\033[K%d", s - i);
+            fflush(stdout); /* make sure the number is displayed */
         }
 
         /* sleep after showing the countdown but before the dot */
@@ -69,7 +70,8 @@ int main(int argc, char ** argv)
             putchar('.');
         }
 
-        fflush(stdout); /* in case stdout is line buffered make sure everything apepars */
+        /* in case stdout is line buffered make sure everything (dot or last number) apepars */
+        fflush(stdout);
     } /* for i */
 
     putchar('\n'); /* always a newline at the end to not leave partial line */
