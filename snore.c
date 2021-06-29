@@ -25,56 +25,89 @@ static void oneSecondSleep(void)
 
 static int upgradeTerminal(void);
 
+static int samestring(const char * a, const char * b)
+{
+    return 0 == strcmp(a, b);
+}
+
+static int goodnumber(const char * text)
+{
+    int i;
+
+    if(strlen(text) > 9)
+        return 0;
+
+    for(i = 0; i < (int)strlen(text); ++i)
+        if(!strchr("0123456789", text[i]))
+            return 0;
+
+    return atoi(text) > 0;
+}
+
 int main(int argc, char ** argv)
 {
-    int i, s;
+    int i, s, usecountdown;
 
-    if(argc != 2 && argc != 3)
-        return fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]), 1;
-
-    for(i = 0; i < (int)strlen(argv[1]); ++i)
-        if(!strchr("0123456789", argv[1][i]))
-            return fprintf(stderr, "Error: use only 0-9 for digits\n"), 2;
-
-    if(strlen(argv[1]) > 9)
-        return fprintf(stderr, "Error: max is 999999999 (nine 9s)\n"), 3;
-
-    if(argc == 3 && 0 != strcmp(argv[2], "--countdown"))
-        return fprintf(stderr, "Error: second argument is not '--countdown'\n"), 4;
-
-    s = atoi(argv[1]);
-
-    if(argc == 3)
-        upgradeTerminal();
-
-    for(i = 0; i < s; ++i)
+    if(argc < 2)
     {
-        if(argc == 3)
+        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        return 1;
+    }
+
+    usecountdown = 0;
+    s = 0;
+    for(i = 1; i < argc; ++i)
+    {
+        if(samestring(argv[i], "--countdown"))
         {
-            /* move cursor to column 0, clearn line, print number */
-            printf("\r\033[K%d", s - i);
-            fflush(stdout); /* make sure the number is displayed */
+            usecountdown = 1;
+            continue;
         }
 
-        /* sleep after showing the countdown but before the dot */
-        oneSecondSleep();
+        if(goodnumber(argv[i]))
+        {
+            s = atoi(argv[i]);
+            continue;
+        }
 
-        /* print 0 after last sleep */
-        if(argc == 3 && i + 1 == s)
-            printf("\r\033[K%d", 0);
+        fprintf(stderr, "'%s' is not valid positive number (max 9 digits) or option\n", argv[i]);
+        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        return 1;
+    }
 
-        if(argc == 2)
+    if(usecountdown)
+    {
+        upgradeTerminal();
+        for(i = 0; i < s; ++i)
+        {
+            /* move cursor to column 0, clearn line, print number, before sleep */
+            printf("\r\033[K%d", s - i);
+            fflush(stdout); /* make sure the number is displayed */
+            oneSecondSleep();
+        }
+    }
+    else
+    {
+        for(i = 0; i < s; ++i)
         {
             /* 1 full minute per line */
             if(i > 0 && (i % 60) == 0) putchar('\n');
             putchar('.');
+
+            /* in case stdout is buffered make sure the dot still appears */
+            fflush(stdout);
+            oneSecondSleep();
         }
+    }
 
-        /* in case stdout is line buffered make sure everything (dot or last number) apepars */
-        fflush(stdout);
-    } /* for i */
+    if(usecountdown)
+    {
+        /* print a zero at the end to leave it displayed after quitting*/
+        printf("\r\033[K%d", 0);
+    }
 
-    putchar('\n'); /* always a newline at the end to not leave partial line */
+    /* always a newline at the end to not leave partial line */
+    putchar('\n');
     return 0;
 }
 
