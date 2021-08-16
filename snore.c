@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
     }
 
     usecountdown = 0;
-    s = 0;
+    s = -1;
     for(i = 1; i < argc; ++i)
     {
         if(samestring(argv[i], "--countdown"))
@@ -73,7 +73,14 @@ int main(int argc, char ** argv)
 
         fprintf(stderr, "'%s' is not valid positive number (max 9 digits) or option\n", argv[i]);
         fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
-        return 1;
+        return 2;
+    }
+
+    if(s < 0)
+    {
+        fprintf(stderr, "No number was given\n", argv[0]);
+        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        return 3;
     }
 
     if(usecountdown)
