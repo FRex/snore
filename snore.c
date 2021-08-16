@@ -9,9 +9,9 @@
 #ifdef SNORE_WINAPI
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h> /* for Sleep */
-#include <io.h> /* for _isatty */
+#include <io.h> /* for _isatty on Windows */
 #else
-#include <unistd.h> /* for sleep */
+#include <unistd.h> /* for sleep and isatty on POSIX */
 #endif
 
 static void oneSecondSleep(void)
@@ -24,6 +24,7 @@ static void oneSecondSleep(void)
 }
 
 static int upgradeTerminal(void);
+static int isStdoutTty(void);
 
 static int samestring(const char * a, const char * b)
 {
@@ -77,11 +78,21 @@ int main(int argc, char ** argv)
 
     if(usecountdown)
     {
+        const int stdouttty = isStdoutTty();
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
-            /* move cursor to column 0, clearn line, print number, before sleep */
-            printf("\r\033[K%d", s - i);
+            if(stdouttty)
+            {
+                /* move cursor to column 0, clearn line, print number, before sleep */
+                printf("\r\033[K%d", s - i);
+            }
+            else
+            {
+                /* not a tty so just print number and the newline (for tools/scripts to consume) */
+                printf("%d\n", s - i);
+            }
+
             fflush(stdout); /* make sure the number is displayed */
             oneSecondSleep();
         }
@@ -100,14 +111,16 @@ int main(int argc, char ** argv)
         }
     }
 
-    if(usecountdown)
+    if(usecountdown && isStdoutTty())
     {
         /* print a zero at the end to leave it displayed after quitting*/
         printf("\r\033[K%d", 0);
     }
 
-    /* always a newline at the end to not leave partial line */
-    putchar('\n');
+    /* a newline at the end to not leave partial line and to add newline after single line countdown */
+    if(!usecountdown || isStdoutTty())
+        putchar('\n');
+
     return 0;
 }
 
@@ -159,5 +172,14 @@ static int upgradeTerminal(void)
     }
 
     return 1;
+#endif /* SNORE_WINAPI */
+}
+
+static int isStdoutTty(void)
+{
+#ifdef SNORE_WINAPI
+    return _isatty(_fileno(stdout));
+#else
+    return isatty(1);
 #endif /* SNORE_WINAPI */
 }
