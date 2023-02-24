@@ -78,7 +78,7 @@ int main(int argc, char ** argv)
 
     if(s < 0)
     {
-        fprintf(stderr, "No number was given\n", argv[0]);
+        fprintf(stderr, "No number was given\n");
         fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
         return 3;
     }
