@@ -45,12 +45,23 @@ static int goodnumber(const char * text)
     return atoi(text) > 0;
 }
 
+#ifndef SNORE_VERSION
+#define SNORE_VERSION 0
+#endif
+
 int main(int argc, char ** argv)
 {
     int i, s, usecountdown;
 
     if(argc < 2)
     {
+        fprintf(
+            stderr,
+            "Snore version %d_%d_%d from https://github.com/FRex/snore\n",
+            SNORE_VERSION / 10000,
+            (SNORE_VERSION / 100) % 100,
+            SNORE_VERSION % 100
+        );
         fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
         return 1;
     }
