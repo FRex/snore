@@ -31,14 +31,36 @@ static int samestring(const char * a, const char * b)
     return 0 == strcmp(a, b);
 }
 
-static int goodnumber(const char * text)
+static int findunit(const char * text)
 {
-    int i;
-
-    if(strlen(text) > 9)
+    if(*text == '\0')
         return 0;
 
-    for(i = 0; i < (int)strlen(text); ++i)
+    while(text[1])
+        ++text;
+
+    if(*text == 's') return 1;
+    if(*text == 'm') return 60;
+    if(*text == 'h') return 3600;
+    return 0;
+}
+
+static int goodnumber(const char * text)
+{
+    size_t textlen, i;
+
+    textlen = strlen(text);
+    if(textlen == 0)
+        return 0;
+
+    if(findunit(text))
+        --textlen;
+
+    /* make sure to not attempt atoi on a string of over 9 digits */
+    if(textlen > 9)
+        return 0;
+
+    for(i = 0; i < textlen; ++i)
         if(!strchr("0123456789", text[i]))
             return 0;
 
@@ -49,9 +71,22 @@ static int goodnumber(const char * text)
 #define SNORE_VERSION 0
 #endif
 
+static void printusage(const char * argv0)
+{
+    if(!argv0) argv0 = "snore.exe";
+    fprintf(stderr, "Usage: %s [--countdown] [--hms] time...\n", argv0);
+}
+
+/* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
+#define SNORE_PRIV_STATIC_ASSERT(msg, expr) typedef int SNORE_PRIV_STATIC_ASSERT_##msg[(expr) * 2 - 1]
+SNORE_PRIV_STATIC_ASSERT(long_long_is_8_bytes, sizeof(long long) == 8);
+SNORE_PRIV_STATIC_ASSERT(int_is_4_bytes, sizeof(int) == 4);
+#undef SNORE_PRIV_STATIC_ASSERT
+
 int main(int argc, char ** argv)
 {
-    int i, s, usecountdown;
+    int i, usecountdown, usehms;
+    long long s; /* 64-bit */
 
     if(argc < 2)
     {
@@ -62,11 +97,12 @@ int main(int argc, char ** argv)
             (SNORE_VERSION / 100) % 100,
             SNORE_VERSION % 100
         );
-        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        printusage(argv[0]);
         return 1;
     }
 
     usecountdown = 0;
+    usehms = 0;
     s = -1;
     for(i = 1; i < argc; ++i)
     {
@@ -76,21 +112,28 @@ int main(int argc, char ** argv)
             continue;
         }
 
-        if(goodnumber(argv[i]))
+        if(samestring(argv[i], "--hms"))
         {
-            s = atoi(argv[i]);
+            usehms = 1;
             continue;
         }
 
-        fprintf(stderr, "'%s' is not valid positive number (max 9 digits) or option\n", argv[i]);
-        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        if(goodnumber(argv[i]))
+        {
+            if(s < 0) s = 0; /* s starts at -1 so make sure its 0 before summing */
+            s += atoi(argv[i]) * findunit(argv[i]);
+            continue;
+        }
+
+        fprintf(stderr, "'%s' is not valid positive time (max 9 digits) or option\n", argv[i]);
+        printusage(argv[0]);
         return 2;
     }
 
     if(s < 0)
     {
-        fprintf(stderr, "No number was given\n");
-        fprintf(stderr, "Usage: %s seconds [--countdown]\n", argv[0]);
+        fprintf(stderr, "No time was given\n");
+        printusage(argv[0]);
         return 3;
     }
 
@@ -103,12 +146,12 @@ int main(int argc, char ** argv)
             if(stdouttty)
             {
                 /* move cursor to column 0, clearn line, print number, before sleep */
-                printf("\r\033[K%d", s - i);
+                printf("\r\033[K%lld", s - i);
             }
             else
             {
                 /* not a tty so just print number and the newline (for tools/scripts to consume) */
-                printf("%d\n", s - i);
+                printf("%lld\n", s - i);
             }
 
             fflush(stdout); /* make sure the number is displayed */
