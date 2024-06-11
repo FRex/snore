@@ -164,6 +164,7 @@ int main(int argc, char ** argv)
         {
             /* 1 full minute per line */
             if(i > 0 && (i % 60) == 0) putchar('\n');
+            if(i > 0 && (i % 60) != 0 && (i % 10) == 0) putchar(' ');
             putchar('.');
 
             /* in case stdout is buffered make sure the dot still appears */
