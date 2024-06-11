@@ -90,6 +90,7 @@ int main(int argc, char ** argv)
 {
     int usecountdown, usehms; /* used as bools */
     long long i, s; /* 64-bit */
+    int multiplier;
 
     if(argc < 2)
     {
@@ -124,7 +125,9 @@ int main(int argc, char ** argv)
         if(goodnumber(argv[i]))
         {
             if(s < 0) s = 0; /* s starts at -1 so make sure its 0 before summing */
-            s += atoi(argv[i]) * findunit(argv[i]);
+            multiplier = findunit(argv[i]);
+            if(multiplier == 0) multiplier = 1; /* if there is no unit then its seconds */
+            s += atoi(argv[i]) * multiplier;
             continue;
         }
 
