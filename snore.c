@@ -2,7 +2,7 @@
 #include <stdlib.h> /* for fprintf putchar and fflush */
 #include <stdio.h> /* for atoi */
 
-#if !defined(SNORE_WINAPI) && defined(_MSC_VER)
+#if defined(WIN32)
 #define SNORE_WINAPI
 #endif
 
@@ -75,6 +75,9 @@ static void printusage(const char * argv0)
 {
     if(!argv0) argv0 = "snore.exe";
     fprintf(stderr, "Usage: %s [--countdown] [--hms] time...\n", argv0);
+    fprintf(stderr, "    time can include s, m or h unit (seconds, minutes, hours)\n");
+    fprintf(stderr, "    --countdown uses a countdown second counter\n");
+    fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
 }
 
 /* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
@@ -85,8 +88,8 @@ SNORE_PRIV_STATIC_ASSERT(int_is_4_bytes, sizeof(int) == 4);
 
 int main(int argc, char ** argv)
 {
-    int i, usecountdown, usehms;
-    long long s; /* 64-bit */
+    int usecountdown, usehms; /* used as bools */
+    long long i, s; /* 64-bit */
 
     if(argc < 2)
     {
@@ -137,7 +140,33 @@ int main(int argc, char ** argv)
         return 3;
     }
 
-    if(usecountdown)
+    if (usehms)
+    {
+        const int stdouttty = isStdoutTty();
+        upgradeTerminal();
+        for(i = 0; i < s; ++i)
+        {
+            const long long remaining = s - i;
+            const long long remainingseconds = remaining % 60;
+            const long long remainingminutes = (remaining / 60) % 60;
+            const long long remaininghours = remaining / 3600;
+
+            if(stdouttty)
+            {
+                /* move cursor to column 0, clearn line, print number, before sleep */
+                printf("\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
+            }
+            else
+            {
+                /* not a tty so just print number and the newline (for tools/scripts to consume) */
+                printf("%02lld:%02lld:%02lld\n", remaininghours, remainingminutes, remainingseconds);
+            }
+
+            fflush(stdout); /* make sure the timer is displayed */
+            oneSecondSleep();
+        }
+    }
+    else if(usecountdown)
     {
         const int stdouttty = isStdoutTty();
         upgradeTerminal();
