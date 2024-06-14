@@ -229,7 +229,7 @@ int main(int argc, char ** argv)
     }
 
     /* a newline at the end to not leave partial line and to add newline after single line countdown */
-    if(!usecountdown || isStdoutTty())
+    if((!usecountdown && !usehms) || isStdoutTty())
         putchar('\n');
 
     return 0;
