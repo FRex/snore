@@ -87,6 +87,42 @@ SNORE_PRIV_STATIC_ASSERT(long_long_is_8_bytes, sizeof(long long) == 8);
 SNORE_PRIV_STATIC_ASSERT(int_is_4_bytes, sizeof(int) == 4);
 #undef SNORE_PRIV_STATIC_ASSERT
 
+static void printHms(long long remaining, int stdouttty)
+{
+    const long long remainingseconds = remaining % 60;
+    const long long remainingminutes = (remaining / 60) % 60;
+    const long long remaininghours = remaining / 3600;
+
+    if(stdouttty)
+    {
+        /* move cursor to column 0, clearn line, print number, before sleep */
+        printf("\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
+    }
+    else
+    {
+        /* not a tty so just print number and the newline (for tools/scripts to consume) */
+        printf("%02lld:%02lld:%02lld\n", remaininghours, remainingminutes, remainingseconds);
+    }
+
+    fflush(stdout); /* make sure the timer is displayed */
+}
+
+static void printCountdown(long long remaining, int stdouttty)
+{
+    if(stdouttty)
+    {
+        /* move cursor to column 0, clearn line, print number, before sleep */
+        printf("\r\033[K%lld", remaining);
+    }
+    else
+    {
+        /* not a tty so just print number and the newline (for tools/scripts to consume) */
+        printf("%lld\n", remaining);
+    }
+
+    fflush(stdout); /* make sure the number is displayed */
+}
+
 int main(int argc, char ** argv)
 {
     int usecountdown, usehms, nosleep; /* used as bools */
@@ -157,25 +193,12 @@ int main(int argc, char ** argv)
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
-            const long long remaining = s - i;
-            const long long remainingseconds = remaining % 60;
-            const long long remainingminutes = (remaining / 60) % 60;
-            const long long remaininghours = remaining / 3600;
-
-            if(stdouttty)
-            {
-                /* move cursor to column 0, clearn line, print number, before sleep */
-                printf("\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
-            }
-            else
-            {
-                /* not a tty so just print number and the newline (for tools/scripts to consume) */
-                printf("%02lld:%02lld:%02lld\n", remaininghours, remainingminutes, remainingseconds);
-            }
-
-            fflush(stdout); /* make sure the timer is displayed */
+            printHms(s - i, stdouttty);
             if(!nosleep) oneSecondSleep();
         }
+
+        /* print 00:00:00 at the end to leave it displayed after quitting */
+        printHms(0);
     }
     else if(usecountdown)
     {
@@ -183,20 +206,12 @@ int main(int argc, char ** argv)
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
-            if(stdouttty)
-            {
-                /* move cursor to column 0, clearn line, print number, before sleep */
-                printf("\r\033[K%lld", s - i);
-            }
-            else
-            {
-                /* not a tty so just print number and the newline (for tools/scripts to consume) */
-                printf("%lld\n", s - i);
-            }
-
-            fflush(stdout); /* make sure the number is displayed */
+            printCountdown(s - i, stdouttty);
             if(!nosleep) oneSecondSleep();
         }
+
+        /* print a zero at the end to leave it displayed after quitting */
+        printCountdown(0);
     }
     else
     {
@@ -211,12 +226,6 @@ int main(int argc, char ** argv)
             fflush(stdout);
             if(!nosleep) oneSecondSleep();
         }
-    }
-
-    if(usecountdown && isStdoutTty())
-    {
-        /* print a zero at the end to leave it displayed after quitting*/
-        printf("\r\033[K%d", 0);
     }
 
     /* a newline at the end to not leave partial line and to add newline after single line countdown */
