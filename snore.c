@@ -23,8 +23,18 @@ static void oneSecondSleep(void)
 #endif
 }
 
+static int g_isStdoutTty;
+
+static int isStdoutTty(void)
+{
+#ifdef SNORE_WINAPI
+    return _isatty(_fileno(stdout));
+#else
+    return isatty(1);
+#endif /* SNORE_WINAPI */
+}
+
 static int upgradeTerminal(void);
-static int isStdoutTty(void);
 
 static int samestring(const char * a, const char * b)
 {
@@ -87,13 +97,13 @@ SNORE_PRIV_STATIC_ASSERT(long_long_is_8_bytes, sizeof(long long) == 8);
 SNORE_PRIV_STATIC_ASSERT(int_is_4_bytes, sizeof(int) == 4);
 #undef SNORE_PRIV_STATIC_ASSERT
 
-static void printHms(long long remaining, int stdouttty)
+static void printHms(long long remaining)
 {
     const long long remainingseconds = remaining % 60;
     const long long remainingminutes = (remaining / 60) % 60;
     const long long remaininghours = remaining / 3600;
 
-    if(stdouttty)
+    if(isStdoutTty())
     {
         /* move cursor to column 0, clearn line, print number, before sleep */
         printf("\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
@@ -107,9 +117,9 @@ static void printHms(long long remaining, int stdouttty)
     fflush(stdout); /* make sure the timer is displayed */
 }
 
-static void printCountdown(long long remaining, int stdouttty)
+static void printCountdown(long long remaining)
 {
-    if(stdouttty)
+    if(isStdoutTty())
     {
         /* move cursor to column 0, clearn line, print number, before sleep */
         printf("\r\033[K%lld", remaining);
@@ -123,7 +133,7 @@ static void printCountdown(long long remaining, int stdouttty)
     fflush(stdout); /* make sure the number is displayed */
 }
 
-static void printDots(long long i, int stdouttty)
+static void printDots(long long i)
 {
     /* newline after each minute and space after each 10 seconds */
     if(i > 0 && (i % 60) == 0) putchar('\n');
@@ -136,7 +146,7 @@ static void printDots(long long i, int stdouttty)
 
 int main(int argc, char ** argv)
 {
-    int stdouttty, usecountdown, usehms, nosleep; /* used as bools */
+    int usecountdown, usehms, nosleep; /* used as bools */
     long long i, s; /* 64-bit */
     int multiplier;
 
@@ -199,44 +209,42 @@ int main(int argc, char ** argv)
         return 3;
     }
 
-    stdouttty = isStdoutTty();
-
     if (usehms)
     {
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
-            printHms(s - i, stdouttty);
+            printHms(s - i);
             if(!nosleep) oneSecondSleep();
         }
 
         /* print 00:00:00 at the end to leave it displayed after quitting */
-        printHms(0, stdouttty);
+        printHms(0);
     }
     else if(usecountdown)
     {
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
-            printCountdown(s - i, stdouttty);
+            printCountdown(s - i);
             if(!nosleep) oneSecondSleep();
         }
 
         /* print a zero at the end to leave it displayed after quitting */
-        printCountdown(0, stdouttty);
+        printCountdown(0);
     }
     else
     {
         for(i = 0; i < s; ++i)
         {
-            printDots(i, stdouttty);
+            printDots(i);
             if(!nosleep) oneSecondSleep();
         }
     }
 
     /* if its not hms or countdown (so its dots) then put newline at the end and if its
        printing to tty as single line hms or countdown then put newline at the end too */
-    if((!usecountdown && !usehms) || stdouttty)
+    if((!usecountdown && !usehms) || isStdoutTty())
         putchar('\n');
 
     return 0;
@@ -290,14 +298,5 @@ static int upgradeTerminal(void)
     }
 
     return 1;
-#endif /* SNORE_WINAPI */
-}
-
-static int isStdoutTty(void)
-{
-#ifdef SNORE_WINAPI
-    return _isatty(_fileno(stdout));
-#else
-    return isatty(1);
 #endif /* SNORE_WINAPI */
 }
