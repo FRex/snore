@@ -198,7 +198,7 @@ int main(int argc, char ** argv)
         }
 
         /* print 00:00:00 at the end to leave it displayed after quitting */
-        printHms(0);
+        printHms(0, stdouttty);
     }
     else if(usecountdown)
     {
@@ -211,7 +211,7 @@ int main(int argc, char ** argv)
         }
 
         /* print a zero at the end to leave it displayed after quitting */
-        printCountdown(0);
+        printCountdown(0, stdouttty);
     }
     else
     {
