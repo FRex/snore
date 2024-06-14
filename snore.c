@@ -125,7 +125,7 @@ static void printCountdown(long long remaining, int stdouttty)
 
 int main(int argc, char ** argv)
 {
-    int usecountdown, usehms, nosleep; /* used as bools */
+    int stdouttty, usecountdown, usehms, nosleep; /* used as bools */
     long long i, s; /* 64-bit */
     int multiplier;
 
@@ -146,6 +146,7 @@ int main(int argc, char ** argv)
     usehms = 0;
     nosleep = 0;
     s = -1;
+
     for(i = 1; i < argc; ++i)
     {
         if(samestring(argv[i], "--countdown"))
@@ -187,9 +188,10 @@ int main(int argc, char ** argv)
         return 3;
     }
 
+    stdouttty = isStdoutTty();
+
     if (usehms)
     {
-        const int stdouttty = isStdoutTty();
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
@@ -202,7 +204,6 @@ int main(int argc, char ** argv)
     }
     else if(usecountdown)
     {
-        const int stdouttty = isStdoutTty();
         upgradeTerminal();
         for(i = 0; i < s; ++i)
         {
@@ -228,8 +229,9 @@ int main(int argc, char ** argv)
         }
     }
 
-    /* a newline at the end to not leave partial line and to add newline after single line countdown */
-    if((!usecountdown && !usehms) || isStdoutTty())
+    /* if its not hms or countdown (so its dots) then put newline at the end and if its
+       printing to tty as single line hms or countdown then put newline at the end too */
+    if((!usecountdown && !usehms) || stdouttty)
         putchar('\n');
 
     return 0;
