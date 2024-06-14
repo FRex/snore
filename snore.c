@@ -78,6 +78,7 @@ static void printusage(const char * argv0)
     fprintf(stderr, "    time can include s, m or h unit (seconds, minutes, hours)\n");
     fprintf(stderr, "    --countdown uses a countdown second counter\n");
     fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
+    fprintf(stderr, "    --nosleep never actually sleep and print all the output at once\n");
 }
 
 /* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
@@ -88,7 +89,7 @@ SNORE_PRIV_STATIC_ASSERT(int_is_4_bytes, sizeof(int) == 4);
 
 int main(int argc, char ** argv)
 {
-    int usecountdown, usehms; /* used as bools */
+    int usecountdown, usehms, nosleep; /* used as bools */
     long long i, s; /* 64-bit */
     int multiplier;
 
@@ -107,6 +108,7 @@ int main(int argc, char ** argv)
 
     usecountdown = 0;
     usehms = 0;
+    nosleep = 0;
     s = -1;
     for(i = 1; i < argc; ++i)
     {
@@ -119,6 +121,12 @@ int main(int argc, char ** argv)
         if(samestring(argv[i], "--hms"))
         {
             usehms = 1;
+            continue;
+        }
+
+        if(samestring(argv[i], "--nosleep"))
+        {
+            nosleep = 1;
             continue;
         }
 
@@ -166,7 +174,7 @@ int main(int argc, char ** argv)
             }
 
             fflush(stdout); /* make sure the timer is displayed */
-            oneSecondSleep();
+            if(!nosleep) oneSecondSleep();
         }
     }
     else if(usecountdown)
@@ -187,7 +195,7 @@ int main(int argc, char ** argv)
             }
 
             fflush(stdout); /* make sure the number is displayed */
-            oneSecondSleep();
+            if(!nosleep) oneSecondSleep();
         }
     }
     else
@@ -201,7 +209,7 @@ int main(int argc, char ** argv)
 
             /* in case stdout is buffered make sure the dot still appears */
             fflush(stdout);
-            oneSecondSleep();
+            if(!nosleep) oneSecondSleep();
         }
     }
 
