@@ -123,6 +123,17 @@ static void printCountdown(long long remaining, int stdouttty)
     fflush(stdout); /* make sure the number is displayed */
 }
 
+static void printDots(long long i, int stdouttty)
+{
+    /* newline after each minute and space after each 10 seconds */
+    if(i > 0 && (i % 60) == 0) putchar('\n');
+    if(i > 0 && (i % 60) != 0 && (i % 10) == 0) putchar(' ');
+    putchar('.');
+
+    /* in case stdout is buffered make sure the dot still appears */
+    fflush(stdout);
+}
+
 int main(int argc, char ** argv)
 {
     int stdouttty, usecountdown, usehms, nosleep; /* used as bools */
@@ -218,13 +229,7 @@ int main(int argc, char ** argv)
     {
         for(i = 0; i < s; ++i)
         {
-            /* newline after each minute and space after each 10 seconds */
-            if(i > 0 && (i % 60) == 0) putchar('\n');
-            if(i > 0 && (i % 60) != 0 && (i % 10) == 0) putchar(' ');
-            putchar('.');
-
-            /* in case stdout is buffered make sure the dot still appears */
-            fflush(stdout);
+            printDots(i, stdouttty);
             if(!nosleep) oneSecondSleep();
         }
     }
