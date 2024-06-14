@@ -217,7 +217,7 @@ int main(int argc, char ** argv)
     {
         for(i = 0; i < s; ++i)
         {
-            /* 1 full minute per line */
+            /* newline after each minute and space after each 10 seconds */
             if(i > 0 && (i % 60) == 0) putchar('\n');
             if(i > 0 && (i % 60) != 0 && (i % 10) == 0) putchar(' ');
             putchar('.');
