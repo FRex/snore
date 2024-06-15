@@ -94,6 +94,7 @@ static void printusage(const char * argv0)
     fprintf(stderr, "    --countdown uses a countdown second counter\n");
     fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
     fprintf(stderr, "    --nosleep never actually sleep and print all the output at once\n");
+    fprintf(stderr, "    --sum only sum the times and print the total seconds\n");
 }
 
 /* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
@@ -151,8 +152,8 @@ static void printDots(long long i)
 
 int main(int argc, char ** argv)
 {
-    int usecountdown, usehms, nosleep; /* used as bools */
-    long long i, s; /* 64-bit */
+    int onlysum, usecountdown, usehms, nosleep; /* used as bools */
+    long long i, s; /* 64-bit, to use as times */
     int multiplier;
 
     g_isStdoutTty = -1; /* to make first isStdoutTty call update the cache */
@@ -173,6 +174,7 @@ int main(int argc, char ** argv)
     usecountdown = 0;
     usehms = 0;
     nosleep = 0;
+    onlysum = 0;
     s = -1;
 
     for(i = 1; i < argc; ++i)
@@ -195,6 +197,12 @@ int main(int argc, char ** argv)
             continue;
         }
 
+        if(samestring(argv[i], "--sum"))
+        {
+            onlysum = 1;
+            continue;
+        }
+
         if(goodnumber(argv[i]))
         {
             if(s < 0) s = 0; /* s starts at -1 so make sure its 0 before summing */
@@ -214,6 +222,12 @@ int main(int argc, char ** argv)
         fprintf(stderr, "No time was given\n");
         printusage(argv[0]);
         return 3;
+    }
+
+    if(onlysum)
+    {
+        printf("The total is %lld seconds\n", s);
+        return 0;
     }
 
     if (usehms)
