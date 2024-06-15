@@ -27,11 +27,16 @@ static int g_isStdoutTty;
 
 static int isStdoutTty(void)
 {
+    if(g_isStdoutTty < 0)
+    {
 #ifdef SNORE_WINAPI
-    return _isatty(_fileno(stdout));
+    g_isStdoutTty = !!_isatty(_fileno(stdout));
 #else
-    return isatty(1);
+    g_isStdoutTty = !!isatty(1);
 #endif /* SNORE_WINAPI */
+    }
+
+    return g_isStdoutTty;
 }
 
 static int upgradeTerminal(void);
@@ -149,6 +154,8 @@ int main(int argc, char ** argv)
     int usecountdown, usehms, nosleep; /* used as bools */
     long long i, s; /* 64-bit */
     int multiplier;
+
+    g_isStdoutTty = -1; /* to make first isStdoutTty call update the cache */
 
     if(argc < 2)
     {
