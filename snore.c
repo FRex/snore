@@ -96,6 +96,7 @@ static void printusage(const char * argv0)
     fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
     fprintf(stderr, "    --nosleep never actually sleep and print all the output at once\n");
     fprintf(stderr, "    --sum only sum the times and print the total seconds\n");
+    fprintf(stderr, "    --print print times as they are being parsed\n");
 }
 
 /* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
@@ -162,7 +163,7 @@ static int hasoption(int argc, char ** argv, const char * opt)
 
 int main(int argc, char ** argv)
 {
-    int onlysum, usecountdown, usehms, nosleep; /* used as bools */
+    int printtimes, onlysum, usecountdown, usehms, nosleep; /* used as bools */
     long long i, s; /* 64-bit, to use as times */
     int multiplier;
 
@@ -186,10 +187,14 @@ int main(int argc, char ** argv)
     usehms = 0;
     nosleep = 0;
     onlysum = 0;
+    printtimes = hasoption(argc, argv, "--print");
     s = -1;
 
     for(i = 1; i < argc; ++i)
     {
+        if(samestring(argv[i], "--print"))
+            continue;
+
         if(samestring(argv[i], "--countdown"))
         {
             usecountdown = 1;
@@ -216,10 +221,15 @@ int main(int argc, char ** argv)
 
         if(goodnumber(argv[i]))
         {
+            long long toadd;
+
             if(s < 0) s = 0; /* s starts at -1 so make sure its 0 before summing */
             multiplier = findunit(argv[i]);
             if(multiplier == 0) multiplier = 1; /* if there is no unit then its seconds */
-            s += atoi(argv[i]) * multiplier;
+            toadd = atoi(argv[i]) * multiplier;
+            s += toadd;
+            if(printtimes)
+                fprintf(stderr, "'%s' parsed as %lld seconds\n", argv[i], toadd);
             continue;
         }
 
