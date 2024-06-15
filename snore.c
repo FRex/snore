@@ -91,6 +91,7 @@ static void printusage(const char * argv0)
     if(!argv0) argv0 = "snore.exe";
     fprintf(stderr, "Usage: %s [--countdown] [--hms] time...\n", argv0);
     fprintf(stderr, "    time can include s, m or h unit (seconds, minutes, hours)\n");
+    fprintf(stderr, "    --help print this help\n");
     fprintf(stderr, "    --countdown uses a countdown second counter\n");
     fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
     fprintf(stderr, "    --nosleep never actually sleep and print all the output at once\n");
@@ -150,6 +151,15 @@ static void printDots(long long i)
     fflush(stdout);
 }
 
+static int hasoption(int argc, char ** argv, const char * opt)
+{
+    int i;
+    for(i = 1; i < argc; ++i)
+        if(samestring(argv[i], opt))
+            return 1;
+    return 0;
+}
+
 int main(int argc, char ** argv)
 {
     int onlysum, usecountdown, usehms, nosleep; /* used as bools */
@@ -158,7 +168,8 @@ int main(int argc, char ** argv)
 
     g_isStdoutTty = -1; /* to make first isStdoutTty call update the cache */
 
-    if(argc < 2)
+    /* short posix and long gnu and two common ms dos help options so 4 in total */
+    if(argc < 2 || hasoption(argc, argv, "--help") || hasoption(argc, argv, "-h") || hasoption(argc, argv, "/?") || hasoption(argc, argv, "-?"))
     {
         fprintf(
             stderr,
