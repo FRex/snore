@@ -21,3 +21,9 @@ Also, if the terminal is a TTY (as checked by `isatty` function) then after
 each print with above two options (but not with the default dots) the clear
 ANSI sequence is sent, so while running in a TTY the program keeps changing
 the single line instead of printing more lines with new values.
+
+Option `--help` (and `-h`, `-?` and `/?`) will print the help, `--sum` will
+only sum the times and error check but not do any countdown, `--nosleep` will
+print all the output without any sleeping, and `--print` will print times to
+`stderr` as they're being parsed. Some of these options are just to help
+me in debugging and development.
