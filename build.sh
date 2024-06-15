@@ -17,21 +17,7 @@ rm "$PDBFILE"
 
 sha1sum "$WINEXE" "$LINEXE"
 
-# echo "Building Windows exe..."
-# pcc -DSNORE_VERSION="$CALNUM" "-o$WINEXE" -Ze -Tx86-coff snore.c -LIBPATH:/c/PellesC/Lib/Win
-# rm snore.obj
-# echo
-
-# exit
-
-# echo "Building Linux exe... hashes must match!"
-# rm -f "$LINEXE"
-# ssh <snore.c fedora /usr/local/musl/bin/musl-gcc -DSNORE_VERSION="$CALNUM" -static -Os -x c -std=c89 - -o "/tmp/$LINEXE" '&&' sha256sum "/tmp/$LINEXE" '>/dev/stderr' '&&' cat "/tmp/$LINEXE" >"$LINEXE"
-# sha256sum "$LINEXE"
-# echo
-
 if [ "$1" == "install" ]; then
     echo "installing"
     cp "$WINEXE" /c/mybin/snore.exe
-    # sha256sum "$WINEXE" /c/mybin/snore.exe
 fi
