@@ -27,3 +27,7 @@ only sum the times and error check but not do any countdown, `--nosleep` will
 print all the output without any sleeping, and `--print` will print times to
 `stderr` as they're being parsed. Some of these options are just to help
 me in debugging and development.
+
+Option `--timer` will cause the command not to sleep for any given amount of
+time but to count up seconds elapsed, also using `HH:MM:SS` format. If that
+option is used, it has to be the only option used.

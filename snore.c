@@ -161,6 +161,19 @@ static int hasoption(int argc, char ** argv, const char * opt)
     return 0;
 }
 
+static int timer(void)
+{
+    long long sofar;
+    upgradeTerminal();
+    sofar = 0;
+    while(1)
+    {
+        printHms(sofar++);
+        oneSecondSleep();
+    } // while 1
+    return 2;
+}
+
 int main(int argc, char ** argv)
 {
     int printtimes, onlysum, usecountdown, usehms, nosleep; /* used as bools */
@@ -168,6 +181,17 @@ int main(int argc, char ** argv)
     int multiplier;
 
     g_isStdoutTty = -1; /* to make first isStdoutTty call update the cache */
+
+    if(hasoption(argc, argv, "--timer"))
+    {
+        if(argc != 2)
+        {
+            fprintf(stderr, "if --timer option is present it must be the only option\n");
+            return 1;
+        }
+
+        return timer();
+    }
 
     /* short posix and long gnu and two common ms dos help options so 4 in total */
     if(argc < 2 || hasoption(argc, argv, "--help") || hasoption(argc, argv, "-h") || hasoption(argc, argv, "/?") || hasoption(argc, argv, "-?"))
