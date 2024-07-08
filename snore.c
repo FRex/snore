@@ -110,34 +110,39 @@ static void printHms(long long remaining)
     const long long remainingseconds = remaining % 60;
     const long long remainingminutes = (remaining / 60) % 60;
     const long long remaininghours = remaining / 3600;
+    char buff[256]; /* NOTE: sprintf makes cursor not jump around in cmd.exe so its beneficial */
 
     if(isStdoutTty())
     {
         /* move cursor to column 0, clearn line, print number, before sleep */
-        printf("\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
+        sprintf(buff, "\r\033[K%02lld:%02lld:%02lld", remaininghours, remainingminutes, remainingseconds);
     }
     else
     {
         /* not a tty so just print number and the newline (for tools/scripts to consume) */
-        printf("%02lld:%02lld:%02lld\n", remaininghours, remainingminutes, remainingseconds);
+        sprintf(buff, "%02lld:%02lld:%02lld\n", remaininghours, remainingminutes, remainingseconds);
     }
 
+    fputs(buff, stdout);
     fflush(stdout); /* make sure the timer is displayed */
 }
 
 static void printCountdown(long long remaining)
 {
+    char buff[256]; /* NOTE: sprintf makes cursor not jump around in cmd.exe so its beneficial */
+
     if(isStdoutTty())
     {
         /* move cursor to column 0, clearn line, print number, before sleep */
-        printf("\r\033[K%lld", remaining);
+        sprintf(buff, "\r\033[K%lld", remaining);
     }
     else
     {
         /* not a tty so just print number and the newline (for tools/scripts to consume) */
-        printf("%lld\n", remaining);
+        sprintf(buff, "%lld\n", remaining);
     }
 
+    fputs(buff, stdout);
     fflush(stdout); /* make sure the number is displayed */
 }
 
