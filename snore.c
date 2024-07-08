@@ -97,6 +97,7 @@ static void printusage(const char * argv0)
     fprintf(stderr, "    --nosleep never actually sleep and print all the output at once\n");
     fprintf(stderr, "    --sum only sum the times and print the total seconds\n");
     fprintf(stderr, "    --print print times as they are being parsed\n");
+    fprintf(stderr, "    --timer create a timer counting up in HH:MM:SS format\n");
 }
 
 /* try typedef an array of -1 elements if the given expression if false to trigger a compile error */
