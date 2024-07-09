@@ -3,7 +3,7 @@
 A small C program that works like `sleep` but prints 1 dot a second, a space
 after each 10 seconds, and a newline after every minute.
 
-Go to releases to download 32-bit Windows and Linux executables (made with `zig cc`).
+Go to [releases](https://github.com/FRex/snore/releases) to download 32-bit Windows and Linux executables (made with `zig cc`).
 
 You need to pass in one or more time arguments, an integer, up to 9 digits
 long, with optional suffix `s`, `m` or `h` (to mean seconds, minutes or
