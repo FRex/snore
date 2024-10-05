@@ -183,8 +183,7 @@ static int timer(void)
 int main(int argc, char ** argv)
 {
     int printtimes, onlysum, usecountdown, usehms, nosleep; /* used as bools */
-    long long i, s; /* 64-bit, to use as times */
-    int multiplier;
+    long long i, s, multiplier; /* 64-bit, to use as times */
 
     g_isStdoutTty = -1; /* to make first isStdoutTty call update the cache */
 
