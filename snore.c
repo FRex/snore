@@ -262,7 +262,8 @@ int main(int argc, char ** argv)
             continue;
         }
 
-        fprintf(stderr, "'%s' is not valid positive time (max 9 digits) or option\n", argv[i]);
+        fprintf(stderr, "'%s' is not valid positive time (max 9 digits) or option (NOTE: unlike GNU and other implementations, this tool doesn't support fractions)\n", argv[i]);
+
         printusage(argv[0]);
         return 2;
     }
