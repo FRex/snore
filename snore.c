@@ -203,7 +203,7 @@ int main(int argc, char ** argv)
     {
         fprintf(
             stderr,
-            "Snore version %d_%d_%d from https://github.com/FRex/snore\n",
+            "Snore version %d_%02d_%02d from https://github.com/FRex/snore\n",
             SNORE_VERSION / 10000,
             (SNORE_VERSION / 100) % 100,
             SNORE_VERSION % 100
