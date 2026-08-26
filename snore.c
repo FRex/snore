@@ -90,7 +90,7 @@ static void printusage(const char * argv0)
 {
     if(!argv0) argv0 = "snore.exe";
     fprintf(stderr, "Usage: %s [--countdown] [--hms] time...\n", argv0);
-    fprintf(stderr, "    time can include s, m or h unit (seconds, minutes, hours)\n");
+    fprintf(stderr, "    time is integer and can include s, m or h unit (seconds, minutes, hours)\n");
     fprintf(stderr, "    --help print this help\n");
     fprintf(stderr, "    --countdown uses a countdown second counter\n");
     fprintf(stderr, "    --hms uses a HH:MM:SS formatted counter\n");
