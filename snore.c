@@ -83,7 +83,7 @@ static int goodnumber(const char * text)
 }
 
 #ifndef SNORE_VERSION
-#define SNORE_VERSION 0
+#define SNORE_VERSION "????_??_??"
 #endif
 
 static void printusage(const char * argv0)
@@ -203,10 +203,8 @@ int main(int argc, char ** argv)
     {
         fprintf(
             stderr,
-            "Snore version %d_%02d_%02d from https://github.com/FRex/snore\n",
-            SNORE_VERSION / 10000,
-            (SNORE_VERSION / 100) % 100,
-            SNORE_VERSION % 100
+            "Snore version %s from https://github.com/FRex/snore\n",
+            SNORE_VERSION
         );
         printusage(argv[0]);
         return 1;
