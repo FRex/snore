@@ -82,8 +82,8 @@ static int goodnumber(const char * text)
     return atoi(text) > 0;
 }
 
-#ifndef SNORE_VERSION
-#define SNORE_VERSION "????_??_??"
+#ifndef CALENDAR_VERSION
+#define CALENDAR_VERSION "????_??_??"
 #endif
 
 static void printusage(const char * argv0)
@@ -204,7 +204,7 @@ int main(int argc, char ** argv)
         fprintf(
             stderr,
             "Snore version %s from https://github.com/FRex/snore\n",
-            SNORE_VERSION
+            CALENDAR_VERSION
         );
         printusage(argv[0]);
         return 1;
